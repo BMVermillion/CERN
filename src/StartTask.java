@@ -33,6 +33,8 @@ public class StartTask implements Runnable{
 	private String inputFile;
 	private String outputFile;
 	private boolean scroll = false;
+	private int scrollSpeed;
+	private int rowNum;
 	
 	private KeyListener buttonBindings;
 	private MouseListener cellClick;
@@ -44,11 +46,14 @@ public class StartTask implements Runnable{
 	
 	private int counter = 0;
 	
-	public StartTask(String in, String out, boolean boo) {
+	public StartTask(String in, String out, int speed, int rows, boolean boo) {
 		inputFile = in;
 		outputFile = out;
 		scroll = boo;
+		scrollSpeed = speed;
+		rowNum = rows;
 		
+		System.out.println(rows);
 		output_data = new ArrayList<String>();
 	}
 	
@@ -69,7 +74,6 @@ public class StartTask implements Runnable{
 			autoScroll();
 		
 	}
-	
 	
 	private void autoScroll() {
 		
@@ -103,7 +107,7 @@ public class StartTask implements Runnable{
 			}
 			
 				try {
-				Thread.sleep(2000);
+				Thread.sleep(scrollSpeed);
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
@@ -126,7 +130,7 @@ public class StartTask implements Runnable{
 		
 		
 		//Records all output to a file
-		FileIO.outputToFile(output);
+		FileIO.outputToFile(output, outputFile);
 		
 		JOptionPane.showMessageDialog(frame, new JLabel("<html><center>All Done!</center> Press ok to exit</html>", JLabel.CENTER), "Finished", JOptionPane.PLAIN_MESSAGE);
 		System.exit(0);
@@ -174,6 +178,9 @@ public class StartTask implements Runnable{
 			}
 			
 		};
+		
+		if (!scroll)
+			return;
 		
 		cellClick = new MouseListener() {
 
@@ -260,7 +267,7 @@ public class StartTask implements Runnable{
 	
 	}
 	
-	private String[][] readInputFile() {
+	private String[][] readInputFile() { 
 		//Read in from file
 		input_data = FileIO.getInputFile(inputFile);
 		if (input_data == null) {
@@ -272,7 +279,7 @@ public class StartTask implements Runnable{
 	
 	//Makes the pane that will do the drawing
 	private void setDrawPane(String[][] s) {
-		draw = new Task(s, Toolkit.getDefaultToolkit().getScreenSize(), !scroll);
+		draw = new Task(s, Toolkit.getDefaultToolkit().getScreenSize(), rowNum);
 		//draw = new Task(s, new Dimension(gd.getDisplayMode().getHeight(), gd.getDisplayMode().getHeight()) );
 		
 		
@@ -340,50 +347,8 @@ public class StartTask implements Runnable{
 
 	}
 	
-	/*
-	//Records time on key press
-	@SuppressWarnings("serial")
-	private static Action keyPress = new AbstractAction() {
-
-		public void actionPerformed(ActionEvent e) {
-			System.out.println("Test" + e.getActionCommand());
-		}	
-	};
-	
-	*/
-	
-	/*
-	private static Dimension getScreenSize() {
-		int width = 0;
-		int height = 0;
-		
-		//size of the screen
-		width = Toolkit.getDefaultToolkit().getScreenSize().width;
-		height = Toolkit.getDefaultToolkit().getScreenSize().height;
-
-		//height of the task bar
-		Insets toolBar = Toolkit.getDefaultToolkit().getScreenInsets(frame.getGraphicsConfiguration());
-		
-		System.out.println("(" + width + "," + height + ")");
-		System.out.println("Bottom = " + toolBar.bottom);
-		System.out.println("Top = " + toolBar.top);
-		System.out.println("Left = " + toolBar.left);
-		System.out.println("Right = " + toolBar.right);
-		if (toolBar.bottom != 0)
-			height -= toolBar.bottom;
-		if (toolBar.top != 0)
-			height += toolBar.top;
-		if (toolBar.left != 0)
-			width += toolBar.left;
-		if (toolBar.right != 0)
-			width += toolBar.right;
-		
-		return new Dimension(width, height);
-
+	private boolean check() {
+		int pos = draw.getPostion()[0];
+		return false;
 	}
-	*/
-	
-	
-
-
 }

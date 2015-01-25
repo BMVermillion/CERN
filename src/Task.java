@@ -30,13 +30,13 @@ public class Task extends JPanel{
 	private int font_size=5;
 	private Color color;
 	
-	public Task(String[][] data, Dimension d, boolean moving) {
+	public Task(String[][] data, Dimension d, int rows) {
 		//Set string data
 		this.Data = data;
 		
-		if (moving) row_num = 6;
+		row_num = rows;
 		
-		this.setPreferredSize(new Dimension((int)d.getHeight()-(moving?0:50), (int)d.getWidth()));
+		this.setPreferredSize(new Dimension((int)d.getHeight()-50, (int)d.getWidth()));
 		super.setBackground(Color.BLACK);
 
 		//Array to hold the data to draw to screen

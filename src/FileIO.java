@@ -1,6 +1,10 @@
 import java.io.*;
 import java.util.*;
 
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+
 
 //Data structure to hold the strings and integers read in from a input file
 class Pair {
@@ -63,18 +67,19 @@ public class FileIO {
 		return s;
 	}
 	
-	public static void outputToFile( ArrayList<String> s) {
+	public static void outputToFile( ArrayList<String> s, String name) {
 		PrintWriter w = null;
 		
 		try {
-			w = new PrintWriter("output.txt", "utf-8");
+			w = new PrintWriter(name, "utf-8");
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
-			System.out.println("Failed to create file");
+			JOptionPane.showMessageDialog(new JFrame("Error"), new JLabel("<html><center>Failed to create file!</center></html>", JLabel.CENTER), "Finished", JOptionPane.PLAIN_MESSAGE);
+
 			return;
 		} catch (UnsupportedEncodingException e) {
 			e.printStackTrace();
-			System.out.println("Failed to create file");
+			JOptionPane.showMessageDialog(new JFrame("Error"), new JLabel("<html><center>Failed to create file!</center></html>", JLabel.CENTER), "Finished", JOptionPane.PLAIN_MESSAGE);
 			return;
 		}
 		
