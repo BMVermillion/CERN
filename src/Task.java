@@ -26,14 +26,15 @@ public class Task extends JPanel{
 	private int column_num = 4;
 	private int row_num = 10;
 	
+	//Font variables
 	private Font font;
 	private int font_size=5;
 	private Color color;
 	
+	
 	public Task(String[][] data, Dimension d, int rows) {
 		//Set string data
 		this.Data = data;
-		
 		row_num = rows;
 		
 		this.setPreferredSize(new Dimension((int)d.getHeight()-50, (int)d.getWidth()));
@@ -102,8 +103,14 @@ public class Task extends JPanel{
 		drawLines(g2);
 		drawText(g2);
 		drawSelected(g2);
+		
+		UserFeedback.drawFalse(g2);
+		UserFeedback.drawHit(g2);
+		UserFeedback.drawMiss(g2);
+		
 	}
-	
+
+
 	private void drawSelected(Graphics2D g2) {
 		g2.setColor(color);
 		
@@ -114,6 +121,7 @@ public class Task extends JPanel{
 		
 		g2.setColor(Color.WHITE);
 	}
+	
 
 	private void drawLines(Graphics2D g2) {
 		
@@ -151,6 +159,11 @@ public class Task extends JPanel{
 	
 			}
 		}
+	}
+	
+	public void drawBox(Graphics g, Color c, int x, int y) {
+		g.setColor(c);
+		g.drawRect(x*column_width, y*row_height, column_width*2, row_height);
 	}
 	
 	public int[] getPostion() {
@@ -216,6 +229,14 @@ public class Task extends JPanel{
 		clearSelected();
 				
 	}
+
+
+	
+	public void setColor(Color color) {
+		this.color = color;
+	}
+
+	
 	
 	
 	

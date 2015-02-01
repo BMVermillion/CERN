@@ -69,7 +69,11 @@ public class StartTask implements Runnable{
 		
 		frame.pack();
 		frame.setVisible(true);
-				
+		
+		UserFeedback.setTask(draw);
+		Thread t = new Thread(new UserFeedback());
+		t.start();
+		
 		if (!scroll)
 			autoScroll();
 		
@@ -78,6 +82,9 @@ public class StartTask implements Runnable{
 	private void autoScroll() {
 		
 
+		
+		boolean match = false;
+		int[] match_val = null;
 		//Timing variables
 		long start_time = 0;				
 		
@@ -95,6 +102,7 @@ public class StartTask implements Runnable{
 		 * instead of the new line time.
 		 */
 		while ( draw.incData() ) {
+			
 			draw.repaint();			//Repaint screen
 		
 			if (start_time == 0) {
@@ -126,13 +134,26 @@ public class StartTask implements Runnable{
 					((key_pressed) ? press_time - start_time : relative_time) + ", " +
 					pi[1]					
 					);
+			
+			
+			if (match && !key_pressed) {
+				UserFeedback.setMissLoc(match_val[2]*2, 2, match_val[2]*2, match_val[0]-match_val[1]+2);
+				match = false;
+			}
+			
+			if (pi[0] == 1) {
+				match = true;
+				match_val = check(1);
+			}
+
+			key_pressed = false;
 		}
 		
 		
 		//Records all output to a file
 		FileIO.outputToFile(output, outputFile);
 		
-		JOptionPane.showMessageDialog(frame, new JLabel("<html><center>All Done!</center> Press ok to exit</html>", JLabel.CENTER), "Finished", JOptionPane.PLAIN_MESSAGE);
+		Notifications.finished();
 		System.exit(0);
 	}
 	
@@ -154,15 +175,40 @@ public class StartTask implements Runnable{
 		buttonBindings = new KeyListener() {
 
 			@Override
-			public void keyPressed(KeyEvent arg0) {			
-				if (arg0.getExtendedKeyCode() == KeyEvent.VK_ESCAPE)
-					buttonPress.actionPerformed(new ActionEvent(buttonBindings, ActionEvent.ACTION_FIRST, "Clear"));
+			public void keyPressed(KeyEvent arg0) {
+				if (scroll) {
+					if (arg0.getExtendedKeyCode() == KeyEvent.VK_ESCAPE)
+						buttonPress.actionPerformed(new ActionEvent(buttonBindings, ActionEvent.ACTION_FIRST, "Clear"));
 				
-				if (arg0.getExtendedKeyCode() == KeyEvent.VK_SPACE) {
-					buttonPress.actionPerformed(new ActionEvent(buttonBindings, ActionEvent.ACTION_FIRST, "Scroll"));
-					press_time  = System.currentTimeMillis();
-					key_pressed = true;
+					if (arg0.getExtendedKeyCode() == KeyEvent.VK_SPACE) {
+						buttonPress.actionPerformed(new ActionEvent(buttonBindings, ActionEvent.ACTION_FIRST, "Scroll"));
+						press_time  = System.currentTimeMillis();
+						key_pressed = true;
+					}
 				}
+				else {
+					if (arg0.getExtendedKeyCode() == KeyEvent.VK_SPACE) {
+						key_pressed = true;
+						press_time = System.currentTimeMillis();
+						
+						int[] hit = check(2);
+						if (hit != null) {
+							System.out.println(hit[0] + " " + hit[1] + " " + hit[2]);
+							UserFeedback.setHitLoc(hit[2]*2, 1, hit[2]*2, hit[0]-hit[1]+1);
+							draw.repaint();
+						}
+						else {
+							UserFeedback.setFalse();
+							draw.repaint();
+						}
+							/////draw.setColor(Color.RED);
+						
+						/////(new Thread(draw)).start();
+					}
+						
+				}
+				
+				
 			}
 
 			@Override
@@ -229,7 +275,7 @@ public class StartTask implements Runnable{
 					//Increment data, if on the
 					if (!draw.incData()) {
 	
-						JOptionPane.showMessageDialog(frame, new JLabel("<html><center>All Done!</center> Press ok to exit</html>", JLabel.CENTER), "Finished", JOptionPane.PLAIN_MESSAGE);
+						Notifications.finished();
 						System.exit(0);
 					}
 					
@@ -271,7 +317,7 @@ public class StartTask implements Runnable{
 		//Read in from file
 		input_data = FileIO.getInputFile(inputFile);
 		if (input_data == null) {
-			JOptionPane.showMessageDialog(new JFrame("Error"), "Input file does not exist.");
+			Notifications.errorInputFile();
 			return null;
 		}
 		return FileIO.getStrings(input_data);
@@ -295,17 +341,6 @@ public class StartTask implements Runnable{
 		info.setOpaque(true);
 		info.setEnabled(false);
 		info.setPreferredSize(new Dimension(200,50));
-		/*
-		JButton button = new JButton("Scroll");
-		button.addActionListener(buttonPress);
-		button.setPreferredSize(new Dimension(100,50));
-		button.setBackground(Color.BLACK);
-		
-		JLabel notice = new JLabel("Press to scroll down");
-		notice.setBackground(Color.BLACK);
-		notice.setForeground(Color.WHITE);
-		notice.setPreferredSize(new Dimension(200,50));
-		*/
 		
 		//Button to scroll the text 
 		JButton scroll = new JButton("Scroll");
@@ -347,8 +382,44 @@ public class StartTask implements Runnable{
 
 	}
 	
-	private boolean check() {
-		int pos = draw.getPostion()[0];
-		return false;
+	private int[] check(int offset) {
+		int pos = draw.getPostion()[0]-offset;
+		
+		Pair current;
+		if (pos < 0)
+			return null;
+		else
+			current = input_data.get(pos);
+		
+		int cnt;
+		if (pos < rowNum)
+			cnt = pos;
+		else
+			cnt = rowNum;
+		
+		for (int i=1; i<=cnt; i++) {
+			Pair back = input_data.get(pos-i);
+			System.out.print("Compairing " + current.str[0] + " p" + current.str[1] + " with " + back.str[0] + " p" + back.str[1] );
+			System.out.println("Compairing " + current.str[2] + " p" + current.str[3] + " with " + back.str[2] + " p" + back.str[3] );
+
+			if (current.str[0].equals(back.str[0]) && current.str[1].equals(back.str[1])) {
+				int[] r = new int[3];
+				r[0] = pos;
+				r[1] = pos-i;
+				r[2] = 0;
+				return r;
+			}
+			else if (current.str[2].equals(back.str[2]) && current.str[3].equals(back.str[3])) {
+				int[] r = new int[3];
+				r[0] = pos;
+				r[1] = pos-i;
+				r[2] = 1;
+				return r;
+			}
+				
+		}
+		
+		System.out.println("Returning null");
+		return null;
 	}
 }
