@@ -1,5 +1,6 @@
-import gnu.io.*;
+package cern.task;
 
+import gnu.io.*;
 import java.io.*;
 
 public class Serial {

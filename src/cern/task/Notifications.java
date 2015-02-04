@@ -1,3 +1,5 @@
+package cern.task;
+
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JFrame;
@@ -11,6 +13,7 @@ public class Notifications {
 	
 	public static void errorOutputFile() {
 		JOptionPane.showMessageDialog(new JFrame("Error"), "Output file can not be empty.");
+		Serial.close();
 	}
 	
 	public static void errorInputFile() {

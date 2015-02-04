@@ -1,3 +1,5 @@
+package cern.task;
+
 import java.io.*;
 import java.util.*;
 
@@ -23,7 +25,6 @@ class Pair {
 public class FileIO {
 	
 	//Reads in from a file 
-	@SuppressWarnings("resource")
 	public static ArrayList<Pair> getInputFile(String file) {
 		
 		ArrayList<Pair> list= new ArrayList<Pair>();
@@ -50,6 +51,7 @@ public class FileIO {
 			
 		}
 		
+		s.close();
 		return list;
 		
 	}
@@ -88,5 +90,19 @@ public class FileIO {
 		
 		w.close();
 		
+	}
+	
+	public static boolean testInputFile(String file) {
+		File f = new File(file);
+		Scanner s = null;
+		try {
+			s = new Scanner(f);
+		} catch (FileNotFoundException e) {
+		
+			return true;
+		}
+		
+		s.close();
+		return false;
 	}
 }

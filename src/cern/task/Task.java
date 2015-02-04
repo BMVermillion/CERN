@@ -1,3 +1,5 @@
+package cern.task;
+
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Dimension;
@@ -13,7 +15,7 @@ import javax.swing.JPanel;
 @SuppressWarnings("serial")
 public class Task extends JPanel{
 
-	private String[][] Data;			//Data imported from file
+	String[] title = {"Source Addr.", "Source Port", "Dest. Addr.", "Dest. Port" };
 	private String[][] data_to_draw;	//Current data being drawn to screen
 	private int[][] selected;			//2x2 array with the points of the selected box
 	private int data_position = 0;		//Current row of data
@@ -34,8 +36,13 @@ public class Task extends JPanel{
 	
 	public Task(String[][] data, Dimension d, int rows) {
 		//Set string data
-		this.Data = data;
 		row_num = rows;
+		
+		for (String[] arr : data) {
+			for (String s : arr)
+				System.out.print(s + " ");
+			System.out.println();
+		}
 		
 		this.setPreferredSize(new Dimension((int)d.getHeight()-50, (int)d.getWidth()));
 		super.setBackground(Color.BLACK);
@@ -77,17 +84,17 @@ public class Task extends JPanel{
 	
 	//Shifts all of the data down a row from bottom to top, then
 	// inserts new data at top
-	public boolean incData() {
+	public void incData(String[] s) {
 		
-		if (data_position == Data.length)
-			return false;
+		//if (data_position == Data.length)
+		//	return false;
 		
 		for (int i=row_num-1; i>=0; i--) 
 			data_to_draw[i+1] = data_to_draw[i];
 			
-		data_to_draw[0] = Data[data_position++];
+		data_to_draw[0] = s;
 		
-		return true;
+		//System.out.println("Data to draw: " + data_to_draw[0][0]);
 	}
 	
 	//Draws data to the screen
@@ -95,6 +102,7 @@ public class Task extends JPanel{
 		super.paintComponent(g);
 		Graphics2D g2 = (Graphics2D) g;
 	
+		drawBoldLines(g2);
 		
 		g2.setFont(font);					//Sets font for text
 		g2.setColor(Color.LIGHT_GRAY);		//Default line and text color
@@ -108,8 +116,15 @@ public class Task extends JPanel{
 		UserFeedback.drawHit(g2);
 		UserFeedback.drawMiss(g2);
 		
+		
 	}
 
+	private void drawBoldLines(Graphics2D g2) {
+		g2.setStroke(new BasicStroke(10));
+		g2.setColor(Color.LIGHT_GRAY);
+		g2.drawLine(width/2, 0, width/2, height-10);
+		g2.drawLine(0, row_height, width, row_height);
+	}
 
 	private void drawSelected(Graphics2D g2) {
 		g2.setColor(color);
@@ -143,7 +158,6 @@ public class Task extends JPanel{
 		FontMetrics fm = g2.getFontMetrics();
 		
 		//Draws the top row with column 
-		String[] title = {"Source Addr.", "Source Port", "Dest. Addr.", "Dest. Port" };
 		for (int i=0; i<column_num; i++) 
 			g2.drawString(title[i], column_width*i + (column_width - fm.stringWidth(title[i]))/2, row_height - (row_height - fm.getHeight())/2 - 5);
 	
@@ -151,11 +165,12 @@ public class Task extends JPanel{
 		for(int j=1; j<=row_num; j++) {
 			for (int i=0; i<column_num; i++)  {
 
-				if (data_to_draw[j][i] == null)
+				if (data_to_draw[j-1][i] == null)
 					continue;
-				g2.drawString(data_to_draw[j][i],													//String
-						column_width*i + (column_width - fm.stringWidth(data_to_draw[j][i]))/2,		//Column
-						(row_height)*(j+1) - (row_height - fm.getHeight())/2 - 5);								//Row
+				g2.drawString(
+						data_to_draw[j-1][i],															//String
+						column_width*i + (column_width - fm.stringWidth(data_to_draw[j-1][i]))/2,		//Column
+						(row_height)*(j+1) - (row_height - fm.getHeight())/2 - 5);						//Row
 	
 			}
 		}
@@ -164,81 +179,5 @@ public class Task extends JPanel{
 	public void drawBox(Graphics g, Color c, int x, int y) {
 		g.setColor(c);
 		g.drawRect(x*column_width, y*row_height, column_width*2, row_height);
-	}
-	
-	public int[] getPostion() {
-		return new int[] {data_position, Data.length};
-	}
-	
-	public void clearSelected() {
-		selected = new int[][] {{0,0},{0,0}};
-	}
-	
-	public void setSelected(int x, int y) {
-		
-		for (int i=0; i<=row_num; i++) {
-			if (i*row_height <= y && (i+1)*row_height > y) {
-				for (int j=0; j<column_num/2; j++) {
-					if (j*column_width*2 <= x && (j+1)*column_width*2 > x){
-						x = j;
-						y = i;
-					}
-				}	
-			}
-		}
-		
-		System.out.println(x + " " + y);
-		
-			
-		
-		if (selected[0][0] == x && selected[0][1] == y)
-			selected[0] = new int[] {0,0};
-		else if (selected[1][0] == x && selected[1][1] == y)
-			selected[1] = new int[] {0,0};
-		else {
-			if (selected[0][0] != x || selected[1][0] != x)
-				clearSelected();
-			
-			selected[1][0] = selected[0][0];
-			selected[1][1] = selected[0][1];
-		
-			selected[0][0] = x;
-			selected[0][1] = y;
-		}
-		
-		this.repaint();
-		
-	}
-	
-	public int[][] getSelected() {
-		return selected;
-	}
-	
-	public void sleepAndClear() {
-		color = Color.MAGENTA;
-		paintComponent(this.getGraphics());
-		
-		try {
-			Thread.sleep(750);
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		
-		color = Color.YELLOW;
-		clearSelected();
-				
-	}
-
-
-	
-	public void setColor(Color color) {
-		this.color = color;
-	}
-
-	
-	
-	
-	
-	
+	}	
 }

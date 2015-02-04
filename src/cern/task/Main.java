@@ -1,3 +1,5 @@
+package cern.task;
+
 import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
@@ -21,7 +23,7 @@ public class Main{
 	private static JTextField sText;
 	private static JTextField pText;
 	private static JTextField rText;
-	private static JRadioButton radio;
+	private static JRadioButton serial;
 	
 	private static final int boxWidth = 150;
 	
@@ -35,17 +37,18 @@ public class Main{
 		Container footer = new Container();
 		footer.setLayout(new BoxLayout(footer,BoxLayout.LINE_AXIS));
 		
-		radio = new JRadioButton("Scrolling");
+		serial = new JRadioButton("Serial");
+		serial.setSelected(true);
 		
 		JButton button = new JButton("OK");
 		button.addActionListener(buttonPress);
 		
-		footer.add(radio);
+		footer.add(serial);
 		footer.add(Box.createHorizontalGlue());
 		footer.add(button);
 
 		
-		c.add( buildRow(outText = new JTextField(), "Output File:", "") );
+		c.add( buildRow(outText = new JTextField(), "Output File:", "Participant_00.txt") );
 		c.add( buildRow(inText = new JTextField(), "Input File:", "HH_ABCD_TEXT.txt") );
 		c.add( buildRow(sText = new JTextField(), "Scroll Delay (ms):", "2000") );
 		c.add( buildRow(pText = new JTextField(), "Port:", "COM1") );
@@ -70,43 +73,52 @@ public class Main{
 		t.add(lab);
 		t.add(Box.createHorizontalGlue());
 		t.add(text);
-		
 		return t;
 	}
 	
 	
 	private static ActionListener buttonPress = new ActionListener() {
 
+		
+		
 		@Override
 		public void actionPerformed(ActionEvent arg0) {
 			
-			/*
-			try {
-				if ( !Serial.connect(pText.getText()) ) {
+			
+			if(serial.isSelected()) {
+				try {
+					if ( !Serial.connect(pText.getText()) ) {
+						Notifications.errorPort();
+						return;
+					}
+			
+				} catch (Exception e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
 					Notifications.errorPort();
 					return;
 				}
-			
-			} catch (Exception e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-				Notifications.errorPort();
-				return;
 			}
-			*/
 			
-			System.out.println(outText.getText());
+			
+			
+			
 			if (outText.getText().equals("")) {
 				Notifications.errorOutputFile();
 				return;
 			}
+			
+			if (FileIO.testInputFile(inText.getText())) {
+				Notifications.errorInputFile();
+				return;
+			}
+			
 				
 			StartTask task = new StartTask(
 					inText.getText(), 
 					outText.getText(),
 					Integer.valueOf(sText.getText()),
-					Integer.valueOf(rText.getText()),
-					false);
+					Integer.valueOf(rText.getText()));
 			
 			settings.dispose();
 			
