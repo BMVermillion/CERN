@@ -19,6 +19,7 @@ public class Task extends JPanel{
 	private String[][] data_to_draw;	//Current data being drawn to screen
 	private int[][] selected;			//2x2 array with the points of the selected box
 	private int data_position = 0;		//Current row of data
+	private boolean binary;
 	
 	//Table formating variables
 	private int width;
@@ -38,12 +39,6 @@ public class Task extends JPanel{
 		//Set string data
 		row_num = rows;
 		
-		for (String[] arr : data) {
-			for (String s : arr)
-				System.out.print(s + " ");
-			System.out.println();
-		}
-		
 		this.setPreferredSize(new Dimension((int)d.getHeight()-50, (int)d.getWidth()));
 		super.setBackground(Color.BLACK);
 
@@ -57,7 +52,6 @@ public class Task extends JPanel{
 		width = (int) d.getWidth();
 		height = (int) d.getHeight()-50;
 		
-		System.out.println("(" + width + "," + height + ")");
 		row_height = (height / (row_num+1));
 		column_width = width / column_num;
 		
@@ -94,7 +88,6 @@ public class Task extends JPanel{
 			
 		data_to_draw[0] = s;
 		
-		//System.out.println("Data to draw: " + data_to_draw[0][0]);
 	}
 	
 	//Draws data to the screen
@@ -116,7 +109,8 @@ public class Task extends JPanel{
 		UserFeedback.drawHit(g2);
 		UserFeedback.drawMiss(g2);
 		
-		
+		if (binary)
+			drawBar(g2);
 	}
 
 	private void drawBoldLines(Graphics2D g2) {
@@ -180,4 +174,21 @@ public class Task extends JPanel{
 		g.setColor(c);
 		g.drawRect(x*column_width, y*row_height, column_width*2, row_height);
 	}	
-}
+	
+	public void drawBar(Graphics2D g2) {
+		
+		int boxWidth = (width - 55) / 10;
+		int boxheight = 25;
+		int stop = UserFeedback.getCurrentBar();
+		
+		//System.out.println("stop: " + stop);
+		for (int i=0; i<stop; i++) {
+			g2.fillRect(boxWidth*i + (5*(i+1)), height+10, boxWidth, boxheight);
+			
+		}
+	}
+	
+	public void setBinary(boolean binary) {
+		this.binary = binary;
+	}
+	}

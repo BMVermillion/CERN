@@ -24,6 +24,7 @@ public class Main{
 	private static JTextField pText;
 	private static JTextField rText;
 	private static JRadioButton serial;
+	private static JRadioButton binary;
 	
 	private static final int boxWidth = 150;
 	
@@ -40,17 +41,21 @@ public class Main{
 		serial = new JRadioButton("Serial");
 		serial.setSelected(true);
 		
+		binary = new JRadioButton("Binary");
+		
 		JButton button = new JButton("OK");
 		button.addActionListener(buttonPress);
 		
+		
 		footer.add(serial);
+		footer.add(binary);
 		footer.add(Box.createHorizontalGlue());
 		footer.add(button);
 
 		
 		c.add( buildRow(outText = new JTextField(), "Output File:", "Participant_00.txt") );
 		c.add( buildRow(inText = new JTextField(), "Input File:", "HH_ABCD_TEXT.txt") );
-		c.add( buildRow(sText = new JTextField(), "Scroll Delay (ms):", "2000") );
+		c.add( buildRow(sText = new JTextField(), "Scroll Delay (ms):", "3250") );
 		c.add( buildRow(pText = new JTextField(), "Port:", "COM1") );
 		c.add( buildRow(rText = new JTextField(), "Rows:", "6") );
 		c.add(footer);
@@ -118,7 +123,8 @@ public class Main{
 					inText.getText(), 
 					outText.getText(),
 					Integer.valueOf(sText.getText()),
-					Integer.valueOf(rText.getText()));
+					Integer.valueOf(rText.getText()),
+					binary.isSelected());
 			
 			settings.dispose();
 			

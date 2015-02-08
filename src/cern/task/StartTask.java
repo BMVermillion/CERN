@@ -39,17 +39,18 @@ public class StartTask implements Runnable{
 	private KeyListener buttonBindings;
 	private MouseListener cellClick;
 	
-	private boolean key_pressed = false;
+	private int key_pressed = 0;
 	private long press_time = 0;
-	
+	private boolean binary;
 	
 	private int counter = 0;
 	
-	public StartTask(String in, String out, int speed, int rows) {
+	public StartTask(String in, String out, int speed, int rows, boolean isBinary) {
 		inputFile = in;
 		outputFile = out;
 		scrollSpeed = speed;
 		rowNum = rows;
+		binary = isBinary;
 		
 		System.out.println(rows);
 		output_data = new ArrayList<String>();
@@ -65,14 +66,22 @@ public class StartTask implements Runnable{
 				
 		setDrawPane(s);
 		
+		
+		
 		frame.pack();
 		frame.setVisible(true);
 		
 		UserFeedback.setTask(draw);
+		UserFeedback.setBarStart(scrollSpeed);
 		Thread t = new Thread(new UserFeedback());
 		t.start();
 		
-		autoScroll();
+		if (binary) {
+			draw.setBinary(binary);
+			autoScrollBinary();
+		}
+		else
+			autoScroll();
 		
 	}
 	
@@ -105,7 +114,7 @@ public class StartTask implements Runnable{
 		}
 		for (Pair data : input_data) {
 			
-			
+			//UserFeedback.startBarTime();
 			//System.out.println("Current data: " + data.str[0]);
 			
 			draw.incData(data.str);
@@ -116,6 +125,8 @@ public class StartTask implements Runnable{
 					relative_time = 0;
 					first = false;
 					output.add("System start time, " + start_time);
+					output.add("Timing interval, " + scrollSpeed);
+
 					//continue;
 			}
 			else 
@@ -138,8 +149,8 @@ public class StartTask implements Runnable{
 					ps[2] + ", " +
 					ps[3] + ", " +
 					pi[0] + ", " +
-					((key_pressed) ? 1 : 0) + ", " +
-					((key_pressed) ? press_time - start_time : relative_time) + ", " +
+					((key_pressed == 1) ? 1 : 0) + ", " +
+					((key_pressed == 1) ? press_time - start_time : relative_time) + ", " +
 					pi[1]					
 					);
 			
@@ -148,11 +159,103 @@ public class StartTask implements Runnable{
 			
 			if (pi[0] == 1) {
 				match = check(counter);
-				if (!key_pressed)
+				if (key_pressed != 1)
 					UserFeedback.setMissLoc(match[2]*2, 2, match[2]*2, match[0]-match[1]+2);
 			}
 
-			key_pressed = false;
+			key_pressed = 0;
+			counter++;
+		}
+		
+		
+		//Records all output to a file
+		FileIO.outputToFile(output, outputFile);
+		
+		Notifications.finished();
+		System.exit(0);
+	}
+	
+private void autoScrollBinary() {
+		
+
+		boolean first = true;
+		int[] match = null;
+		//Timing variables
+		long start_time = 0;				
+		
+		//Variables for use in the while loop
+		long relative_time = 0;
+		ArrayList<String> output = new ArrayList<String>();
+		String[] ps;
+		int[] pi;
+				
+		/*
+		 * Note: When outputting system time, the time a new line is put 
+		 * on screen is the default output. This changes when a user presses
+		 * the space bar. The time when a user presses the space bar is recorded
+		 * instead of the new line time.
+		 */
+		
+		try {
+			Thread.sleep(scrollSpeed);
+		} catch (InterruptedException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+		for (Pair data : input_data) {
+			
+			UserFeedback.startBarTime();
+			//System.out.println("Current data: " + data.str[0]);
+			
+			draw.incData(data.str);
+			draw.repaint();			//Repaint screen
+		
+			if (first) {
+					start_time = System.currentTimeMillis();
+					relative_time = 0;
+					first = false;
+					output.add("System start time, " + start_time);
+					output.add("Timing interval, " + scrollSpeed);
+					//continue;
+			}
+			else 
+					relative_time = System.currentTimeMillis() - start_time;
+			
+			try {
+				Thread.sleep(scrollSpeed);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+				
+			
+			if (key_pressed == 0)
+				UserFeedback.setFalse();
+			
+			//Record output after waiting 
+			//i = draw.getPostion()[0] - 2;
+			ps = data.str;
+			pi = data.in;
+			output.add(
+					ps[0] + ", " +
+					ps[1] + ", " +
+					ps[2] + ", " +
+					ps[3] + ", " +
+					pi[0] + ", " +
+					key_pressed + ", " +
+					((key_pressed > 0) ? press_time - start_time : relative_time) + ", " +
+					pi[1]					
+					);
+			
+			
+			
+			
+			if (pi[0] == 1) {
+				match = check(counter);
+				if (key_pressed != 1)
+					UserFeedback.setMissLoc(match[2]*2, 2, match[2]*2, match[0]-match[1]+2);
+			}
+
+			key_pressed = 0;
 			counter++;
 		}
 		
@@ -184,10 +287,13 @@ public class StartTask implements Runnable{
 			@Override
 			public void keyPressed(KeyEvent arg0) {
 				
+				if (key_pressed != 0)
+					return;
+				
 				Serial.sendPack();
-				if (arg0.getExtendedKeyCode() == KeyEvent.VK_SPACE) {
-					key_pressed = true;
-					press_time = System.currentTimeMillis();
+				press_time = System.currentTimeMillis();
+				if (!binary && arg0.getExtendedKeyCode() == KeyEvent.VK_SPACE) {
+					key_pressed = 1;
 						
 					int[] hit = check(counter);
 					if (hit != null) {
@@ -199,6 +305,30 @@ public class StartTask implements Runnable{
 						draw.repaint();
 					}	
 				}	
+				else if (binary) {
+					if (arg0.getExtendedKeyCode() == KeyEvent.VK_UP) {
+						key_pressed = 1;
+						
+						int[] hit = check(counter);
+						if (hit != null) {
+							UserFeedback.setHitLoc(hit[2]*2, 1, hit[2]*2, hit[0]-hit[1]+1);
+							draw.repaint();
+						}
+						else {
+							UserFeedback.setFalse();
+							draw.repaint();
+						}
+					}
+					else if (arg0.getExtendedKeyCode() == KeyEvent.VK_DOWN) {
+						key_pressed = 2;
+						
+						int[] hit = check(counter);
+						if (hit != null) {
+							UserFeedback.setMissLoc(hit[2]*2, 1, hit[2]*2, hit[0]-hit[1]+1);
+							draw.repaint();
+						}
+					}
+				}
 			}
 
 			@Override

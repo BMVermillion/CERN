@@ -10,6 +10,8 @@ public class UserFeedback implements Runnable {
 	private static int hitTime = 0;
 	private static int missTime = 0;
 	private static int falseTime = 0;
+	private static int barTime = 0;
+	private static int barStart = 1;
 	
 	private static final int wait = 25;
 	private static final int time = 250;
@@ -37,8 +39,13 @@ public class UserFeedback implements Runnable {
 		
 			if (falseTime > 0)
 				falseTime -= wait;
+			
+			if (barTime > 0)
+				barTime -= wait;
 		
 			t.repaint();
+			
+			//System.out.println(barTime);
 		}
 	}
 	
@@ -95,6 +102,20 @@ public class UserFeedback implements Runnable {
 		t.drawBox(g, Color.RED, 0, 0);
 		t.drawBox(g, Color.RED, 2, 0);
 		
+	}
+	
+	public static void setBarStart(int start) {
+		barStart = start;
+	}
+	
+	public static void startBarTime() {
+		barTime = barStart;
+	}
+	
+	public static int getCurrentBar() {
+		double time = barTime;
+		double start = barStart;
+		return 10 - (int)(time/start*10.0);
 	}
 	
 	public static void setTask (Task task) {
