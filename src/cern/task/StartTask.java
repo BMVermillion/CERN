@@ -42,15 +42,17 @@ public class StartTask implements Runnable{
 	private int key_pressed = 0;
 	private long press_time = 0;
 	private boolean binary;
+	private boolean bar;
 	
 	private int counter = 0;
 	
-	public StartTask(String in, String out, int speed, int rows, boolean isBinary) {
+	public StartTask(String in, String out, int speed, int rows, boolean isBinary, boolean bar) {
 		inputFile = in;
 		outputFile = out;
 		scrollSpeed = speed;
 		rowNum = rows;
 		binary = isBinary;
+		this.bar = bar;
 		
 		System.out.println(rows);
 		output_data = new ArrayList<String>();
@@ -77,7 +79,7 @@ public class StartTask implements Runnable{
 		t.start();
 		
 		if (binary) {
-			draw.setBinary(binary);
+			draw.setBinary(bar);
 			autoScrollBinary();
 		}
 		else

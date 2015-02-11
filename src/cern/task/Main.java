@@ -25,6 +25,7 @@ public class Main{
 	private static JTextField rText;
 	private static JRadioButton serial;
 	private static JRadioButton binary;
+	private static JRadioButton bar;
 	
 	private static final int boxWidth = 150;
 	
@@ -42,13 +43,16 @@ public class Main{
 		serial.setSelected(true);
 		
 		binary = new JRadioButton("Binary");
+		bar = new JRadioButton("Bar");
+		bar.setSelected(true);
 		
-		JButton button = new JButton("OK");
+		JButton button = new JButton("Start");
 		button.addActionListener(buttonPress);
 		
 		
 		footer.add(serial);
 		footer.add(binary);
+		footer.add(bar);
 		footer.add(Box.createHorizontalGlue());
 		footer.add(button);
 
@@ -124,7 +128,8 @@ public class Main{
 					outText.getText(),
 					Integer.valueOf(sText.getText()),
 					Integer.valueOf(rText.getText()),
-					binary.isSelected());
+					binary.isSelected(),
+					bar.isSelected());
 			
 			settings.dispose();
 			
