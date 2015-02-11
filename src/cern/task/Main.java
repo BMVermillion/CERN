@@ -32,6 +32,7 @@ public class Main{
 	public static void main(String[] args) {
 		
 		settings = new JFrame("Settings");
+		settings.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		Container c = new Container();
 		c.setLayout(new BoxLayout(c,BoxLayout.PAGE_AXIS));
 		
