@@ -26,3 +26,9 @@ This will bring up a small outions menu
 
 Running the program:
 The program consists of 7 rows and 4 columns. The first row is the label for each column which are Source Addr, Port, Dest Addr, Port. The following rows contin the information loaded from the input file, that will scroll down after each scroll delay. The objective is to find matches of addresses and ports on either the left two columns (Source) or the right two columns (Destination). There is no matching between the source and destination. When there is a match on the screen, the user must press space bar, which will cause the match to flash green. When you miss a match it will flash red and if you press the space bar when there is no match the top bar will flsh red. The Binary option adds a few extra options to the program. Instead of the space bar you have to press up if there is a match and down if none. Not choosing a option will automatically make it wrong. The binary portion of the program also has a timing bar at the bottom of the screen.
+
+File Output:
+-First Row: System start time
+-Second Row: Timing interval between events
+-Other Rows: <Src IP>, <Port>, <Dest IP>, <Port>, <Is Match>, <Key Pressed>, <Time>, <Section>
+-In the binary part of the program, <Key Pressed> can be 0,1,2 instead of just 0,1. 0 = no press, 1 = press up, 2 = press down.
