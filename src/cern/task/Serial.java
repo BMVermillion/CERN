@@ -3,6 +3,11 @@ package cern.task;
 import gnu.io.*;
 import java.io.*;
 
+/*
+ * The Serial class handles all of the serial communication for the program. Everything is
+ * static, so first call connect() then you can use sendPack(). sendPack() will not throw a error
+ * if you don't connect first, it just won't send anything. Please close when you are done :)
+ */
 public class Serial {
 
 	private static SerialPort serialPort;
@@ -26,12 +31,7 @@ public class Serial {
             {
                 serialPort = (SerialPort) commPort;
                 serialPort.setSerialPortParams(57600,SerialPort.DATABITS_8,SerialPort.STOPBITS_1,SerialPort.PARITY_NONE);
-                
-                //InputStream in = serialPort.getInputStream();
                 out = serialPort.getOutputStream();
-                
-                //(new Thread(new SerialReader(in))).start();
-                ///(new Thread(new SerialWriter(out))).start();
 
                 return true;
             }

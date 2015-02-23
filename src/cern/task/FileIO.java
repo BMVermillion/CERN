@@ -65,7 +65,6 @@ public class FileIO {
 			s[i++] = p.str.clone();
 		
 	
-		System.out.println(i);
 		return s;
 	}
 	

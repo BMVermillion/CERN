@@ -4,7 +4,11 @@ import java.awt.Color;
 import java.awt.Graphics;
 import javax.swing.JPanel;
 
-
+/*
+ * The UserFeedback class is a thread that is responsible for drawing
+ * and timing for the flashes that occurs when a user presses a key or
+ * misses a event
+ */
 public class UserFeedback implements Runnable {
 
 	private static int hitTime = 0;

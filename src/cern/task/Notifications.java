@@ -4,11 +4,18 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JFrame;
 
+/*
+ * A class to hold all of the notifications the program generates
+ */
 public class Notifications {
 
 	public static void finished() {
 		JOptionPane.showMessageDialog(new JFrame(), new JLabel("<html><center>All Done!</center> Press ok to exit</html>", JLabel.CENTER), "Finished", JOptionPane.PLAIN_MESSAGE);
 		Serial.close();
+	}
+	
+	public static void ready() {
+		JOptionPane.showMessageDialog(new JFrame(), new JLabel("<html><center>Ready?</center> Press ok to start the task.</html>", JLabel.CENTER), "Finished", JOptionPane.PLAIN_MESSAGE);
 	}
 	
 	public static void errorOutputFile() {

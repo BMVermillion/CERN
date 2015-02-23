@@ -11,8 +11,10 @@ import java.awt.Graphics2D;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
-
-@SuppressWarnings("serial")
+/*
+ * This class is responsible for drawing the entire screen. Data is not handled here
+ * except for what is being displayed on the screen.
+ */
 public class Task extends JPanel{
 
 	String[] title = {"Source Addr.", "Source Port", "Dest. Addr.", "Dest. Port" };
@@ -181,7 +183,6 @@ public class Task extends JPanel{
 		int boxheight = 25;
 		int stop = UserFeedback.getCurrentBar();
 		
-		//System.out.println("stop: " + stop);
 		for (int i=0; i<stop; i++) {
 			g2.fillRect(boxWidth*i + (5*(i+1)), height+10, boxWidth, boxheight);
 			

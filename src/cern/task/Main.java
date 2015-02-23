@@ -13,7 +13,10 @@ import javax.swing.JLabel;
 import javax.swing.JRadioButton;
 import javax.swing.JTextField;
 
-
+/*
+ * Contains the main thread of the program and creates a options menu
+ * for settings before the main task begins.
+ */
 public class Main{
 	public static JFrame settings;
 	public static boolean scrolling = false;
@@ -22,7 +25,6 @@ public class Main{
 	private static JTextField inText;
 	private static JTextField sText;
 	private static JTextField pText;
-	private static JTextField rText;
 	private static JRadioButton serial;
 	private static JRadioButton binary;
 	private static JRadioButton bar;
@@ -62,7 +64,6 @@ public class Main{
 		c.add( buildRow(inText = new JTextField(), "Input File:", "HH_ABCD_TEXT.txt") );
 		c.add( buildRow(sText = new JTextField(), "Scroll Delay (ms):", "3250") );
 		c.add( buildRow(pText = new JTextField(), "Port:", "COM1") );
-		c.add( buildRow(rText = new JTextField(), "Rows:", "6") );
 		c.add(footer);
 		
 		settings.setContentPane(c);
@@ -123,12 +124,13 @@ public class Main{
 				return;
 			}
 			
-				
+			
+			
 			StartTask task = new StartTask(
 					inText.getText(), 
 					outText.getText(),
 					Integer.valueOf(sText.getText()),
-					Integer.valueOf(rText.getText()),
+					6,
 					binary.isSelected(),
 					bar.isSelected());
 			

@@ -22,28 +22,35 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 
-
+/*
+ * This is where the task starts after the options menu closes. It reads in data, initializes other classes
+ * handles the main loop of the program, records data, then outputs data.
+ */
 public class StartTask implements Runnable{
-
+	//Main window
 	private JFrame frame;
+	//Draw frame
+	private Task draw;
+	
+	//Data structs for input and output
 	private ArrayList<Pair> input_data;
 	private ArrayList<String> output_data;
-	private Task draw;
-
-
+	
+	//Important variables
 	private String inputFile;
 	private String outputFile;
 	private int scrollSpeed;
 	private int rowNum;
 	
+	//Listeners
 	private KeyListener buttonBindings;
 	private MouseListener cellClick;
 	
+	//Variables for timing and such
 	private int key_pressed = 0;
 	private long press_time = 0;
 	private boolean binary;
 	private boolean bar;
-	
 	private int counter = 0;
 	
 	public StartTask(String in, String out, int speed, int rows, boolean isBinary, boolean bar) {
@@ -54,20 +61,21 @@ public class StartTask implements Runnable{
 		binary = isBinary;
 		this.bar = bar;
 		
-		System.out.println(rows);
 		output_data = new ArrayList<String>();
 	}
 	
 	@Override
+	//Thread that runs the task
 	public void run() {
 
+		/*init*/
 		makeListeners();
 		setFrame();
 		
 		String[][] s = readInputFile();		
-				
-		setDrawPane(s);
 		
+		setDrawPane(s);
+		////////
 		
 		
 		frame.pack();
@@ -75,11 +83,15 @@ public class StartTask implements Runnable{
 		
 		UserFeedback.setTask(draw);
 		UserFeedback.setBarStart(scrollSpeed);
+		
 		Thread t = new Thread(new UserFeedback());
 		t.start();
 		
+		Notifications.ready();
+		
+		
 		if (binary) {
-			draw.setBinary(bar);
+			
 			autoScrollBinary();
 		}
 		else
@@ -101,38 +113,37 @@ public class StartTask implements Runnable{
 		String[] ps;
 		int[] pi;
 				
-		/*
-		 * Note: When outputting system time, the time a new line is put 
-		 * on screen is the default output. This changes when a user presses
-		 * the space bar. The time when a user presses the space bar is recorded
-		 * instead of the new line time.
-		 */
 		
+		
+		Serial.sendPack();
 		try {
-			Thread.sleep(scrollSpeed);
+			Thread.sleep(100);
 		} catch (InterruptedException e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
+		
+		
 		for (Pair data : input_data) {
 			
-			//UserFeedback.startBarTime();
-			//System.out.println("Current data: " + data.str[0]);
-			
 			draw.incData(data.str);
-			draw.repaint();			//Repaint screen
+			draw.repaint();			
 		
+			UserFeedback.startBarTime();
+			
 			if (first) {
-					start_time = System.currentTimeMillis();
+				
+					start_time = System.nanoTime()/10000000;
+					Serial.sendPack();
+					
 					relative_time = 0;
 					first = false;
-					output.add("System start time, " + start_time);
+					output.add("Participant Number: " + outputFile);
 					output.add("Timing interval, " + scrollSpeed);
-
-					//continue;
 			}
 			else 
-					relative_time = System.currentTimeMillis() - start_time;
+					relative_time = System.nanoTime()/10000000 - start_time;
+			
 			
 			try {
 				Thread.sleep(scrollSpeed);
@@ -141,8 +152,7 @@ public class StartTask implements Runnable{
 			}
 				
 			
-			//Record output after waiting 
-			//i = draw.getPostion()[0] - 2;
+			//Record output
 			ps = data.str;
 			pi = data.in;
 			output.add(
@@ -152,7 +162,8 @@ public class StartTask implements Runnable{
 					ps[3] + ", " +
 					pi[0] + ", " +
 					((key_pressed == 1) ? 1 : 0) + ", " +
-					((key_pressed == 1) ? press_time - start_time : relative_time) + ", " +
+					relative_time + ", " +
+					((key_pressed == 1) ? press_time - start_time - relative_time: 0) + ", " +
 					pi[1]					
 					);
 			
@@ -167,6 +178,8 @@ public class StartTask implements Runnable{
 
 			key_pressed = 0;
 			counter++;
+			
+			
 		}
 		
 		
@@ -177,12 +190,12 @@ public class StartTask implements Runnable{
 		System.exit(0);
 	}
 	
-private void autoScrollBinary() {
+	private void autoScrollBinary() {
 		
 
 		boolean first = true;
 		int[] match = null;
-		//Timing variables
+		
 		long start_time = 0;				
 		
 		//Variables for use in the while loop
@@ -190,38 +203,33 @@ private void autoScrollBinary() {
 		ArrayList<String> output = new ArrayList<String>();
 		String[] ps;
 		int[] pi;
-				
-		/*
-		 * Note: When outputting system time, the time a new line is put 
-		 * on screen is the default output. This changes when a user presses
-		 * the space bar. The time when a user presses the space bar is recorded
-		 * instead of the new line time.
-		 */
 		
+		Serial.sendPack();
 		try {
-			Thread.sleep(scrollSpeed);
+			Thread.sleep(100);
 		} catch (InterruptedException e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
+		
 		for (Pair data : input_data) {
 			
 			UserFeedback.startBarTime();
-			//System.out.println("Current data: " + data.str[0]);
 			
 			draw.incData(data.str);
 			draw.repaint();			//Repaint screen
 		
 			if (first) {
-					start_time = System.currentTimeMillis();
+					start_time = System.nanoTime()/10000000;
+					Serial.sendPack();
+					
 					relative_time = 0;
 					first = false;
-					output.add("System start time, " + start_time);
+					output.add("Participant Number: " + outputFile);
 					output.add("Timing interval, " + scrollSpeed);
-					//continue;
 			}
 			else 
-					relative_time = System.currentTimeMillis() - start_time;
+					relative_time = System.nanoTime()/10000000 - start_time;
 			
 			try {
 				Thread.sleep(scrollSpeed);
@@ -233,8 +241,6 @@ private void autoScrollBinary() {
 			if (key_pressed == 0)
 				UserFeedback.setFalse();
 			
-			//Record output after waiting 
-			//i = draw.getPostion()[0] - 2;
 			ps = data.str;
 			pi = data.in;
 			output.add(
@@ -244,7 +250,8 @@ private void autoScrollBinary() {
 					ps[3] + ", " +
 					pi[0] + ", " +
 					key_pressed + ", " +
-					((key_pressed > 0) ? press_time - start_time : relative_time) + ", " +
+					relative_time + ", " +
+					((key_pressed == 1) ? press_time - start_time - relative_time: 0) + ", " + 
 					pi[1]					
 					);
 			
@@ -293,7 +300,8 @@ private void autoScrollBinary() {
 					return;
 				
 				Serial.sendPack();
-				press_time = System.currentTimeMillis();
+				press_time = System.nanoTime()/1000000;
+				
 				if (!binary && arg0.getExtendedKeyCode() == KeyEvent.VK_SPACE) {
 					key_pressed = 1;
 						
@@ -360,7 +368,7 @@ private void autoScrollBinary() {
 	//Makes the pane that will do the drawing
 	private void setDrawPane(String[][] s) {
 		draw = new Task(s, Toolkit.getDefaultToolkit().getScreenSize(), rowNum);
-		//draw = new Task(s, new Dimension(gd.getDisplayMode().getHeight(), gd.getDisplayMode().getHeight()) );
+		draw.setBinary(bar);
 		
 		frame.setContentPane(draw);
 		
@@ -378,12 +386,9 @@ private void autoScrollBinary() {
 			cnt = rowNum;
 		
 		current_data = new Pair[cnt];
-		//System.out.println("Pos: " + pos);
-		for (int i=0; i<cnt; i++) {
+		for (int i=0; i<cnt; i++) 
 			current_data[i] = input_data.get(pos-i);
-			System.out.println(current_data[i].str[0]);
-		}
-		System.out.println("Done");
+
 		
 		for (int i=1; i<cnt; i++) {
 			
@@ -404,7 +409,6 @@ private void autoScrollBinary() {
 				
 		}
 		
-		//System.out.println("Returning null");
 		return null;
 	}
 }
